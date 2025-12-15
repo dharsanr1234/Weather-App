@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #9af8ff, #60a2ff);
+      color: #222;
+      transition: background 0.5s ease-in-out;
+    }
+
+    .app {
+      background:linear-gradient(135deg, #89f7fe, #66a6ff);
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      text-align: center;
+      width: 320px;
+    }
+
+    h1 {
+      margin: 0 0 16px;
+      font-size: 22px;
+      color: #333;
+    }
+
+    input {
+      width: 70%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-right: 4px;
+    }
+
+    button {
+      padding: 8px 12px;
+      background: #0077cc;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background: #005fa3;
+    }
+
+    .weather {
+      margin-top: 20px;
+    }
+
+    .temp {
+      font-size: 32px;
+      font-weight: bold;
+      margin: 8px 0;
+    }
+
+    .icon {
+      width: 80px;
+      height: 80px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>Weather App</h1>
+    <div>
+      <input type="text" id="cityInput" placeholder="Enter city name">
+      <button onclick="getWeather()">Search</button>
+    </div>
+    <div id="result" class="weather"></div>
+  </div>
+
+  <script>
+    const apiKey = "102543434f35488b99a25258252808";
+    const weatherBackgrounds = {
+      "Sunny": "linear-gradient(135deg, #f6d365, #fda085)",  
+      "Clear": "linear-gradient(135deg, #2980b9, #6dd5fa)",   
+      "Partly cloudy": "linear-gradient(135deg, #d7d2cc, #304352)", 
+      "Cloudy": "linear-gradient(135deg, #757f9a, #d7dde8)", 
+      "Overcast": "linear-gradient(135deg, #bdc3c7, #2c3e50)", 
+      "Rain": "linear-gradient(135deg, #00c6fb, #005bea)", 
+      "Thunderstorm": "linear-gradient(135deg, #20002c, #cbb4d4)", 
+      "Snow": "linear-gradient(135deg, #e6dada, #274046)", 
+      "Mist": "linear-gradient(135deg, #606c88, #3f4c6b)"
+    };
+
+    async function getWeather() {
+      const city = document.getElementById("cityInput").value.trim();
+      const resultDiv = document.getElementById("result");
+
+      if (!city) {
+        resultDiv.innerHTML = "<p>Please enter a city.</p>";
+        return;
+      }
+
+      try {
+        const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`;
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error("City not found");
+        }
+
+        const data = await response.json();
+        const condition = data.current.condition.text;
+
+        document.body.style.background =
+          weatherBackgrounds[condition] || "linear-gradient(135deg, #ff9a9e, #fad0c4)";
+
+        resultDiv.innerHTML = `
+          <h2>${data.location.name}, ${data.location.country}</h2>
+          <div class="temp">${data.current.temp_c}°C</div>
+          <img class="icon" src="https:${data.current.condition.icon}" alt="${condition}">
+          <p>${condition}</p>
+          <p>Humidity: ${data.current.humidity}%</p>
+          <p>Wind: ${data.current.wind_kph} kph</p>
+        `;
+      } catch (err) {
+        resultDiv.innerHTML = `<p>Error: ${err.message}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
